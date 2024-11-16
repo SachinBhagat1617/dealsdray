@@ -1,5 +1,6 @@
 const Employee = require("../models/employee");
 const cloudinary = require("cloudinary").v2;
+const jwt=require("jsonwebtoken")
 exports.createEmployee = async (req, res, next) => {
   try {
     let result;
@@ -11,13 +12,26 @@ exports.createEmployee = async (req, res, next) => {
         crop: "scale",
       });
     }
-    console.log(req.files);
-    const { name, email, mobile, designation, gender, courses } = req.body;
-    console.log(req.body);
-    if (!name || !email || !mobile || !designation || !gender || !courses) {
+    
+    //console.log(req.files);
+    const { firstName, lastName, email,phoneNumber, company, jobTitle, token } =
+      req.body;
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phoneNumber ||
+      !company ||
+      !jobTitle ||
+      !token
+    ) {
       return next(Error("Please Fill up all the details"));
     }
-
+  
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decode)
+    const userId = decode.id;
+    console.log(userId)
     const emp = await Employee.findOne({ email });
     if (emp) {
       return res.json({
@@ -27,12 +41,13 @@ exports.createEmployee = async (req, res, next) => {
     }
 
     const employee = new Employee({
-      name,
+      firstName,
+      lastName,
       email,
-      mobile,
-      designation,
-      gender,
-      courses,
+      phoneNumber,
+      company,
+      jobTitle,
+      user: userId,
       image: {
         id: result.public_id,
         secure_url: result.secure_url,
@@ -59,8 +74,10 @@ exports.createEmployee = async (req, res, next) => {
 
 exports.getAllEmployee = async (req, res, next) => {
   try {
-    const employees = await Employee.find();
-
+    const { token } = req.body;
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decode.id;
+    const employees = await Employee.find({ user: userId });
     return res.json({
       success: true,
       employees,
@@ -73,7 +90,7 @@ exports.getAllEmployee = async (req, res, next) => {
 exports.getSingleEmployee = async (req, res, next) => {
   try {
     const { id } = req.params;
-      const employee = await Employee.findOne({ id });
+      const employee = await Employee.findOne({ _id:id });
     console.log(employee);
     if (!employee) {
       return next(Error("User doesnot Exist"));
@@ -89,18 +106,18 @@ exports.getSingleEmployee = async (req, res, next) => {
 exports.editEmployee = async (req, res, next) => {
   try {
     const { id } = req.params;
-    let { name, email, mobile, designation, gender, courses } = req.body;
-      const employee = await Employee.findOne({ id });
+    let { firstName, lastName, email, phoneNumber, company,jobTiltle } = req.body;
+    const employee = await Employee.findOne({ _id:id });
     if (!employee) {
       return next(Error("user doesnot exist"));
     }
-    employee.name = name;
+    employee.firstName = firstName;
+    employee.lastName = lastName;
     employee.email = email;
-    employee.mobile = mobile;
-    employee.designation = designation;
-    employee.gender = gender;
-    employee.courses = courses;
-    let result;
+    employee.phoneNumber = phoneNumber;
+    employee.company = company;
+    employee.jobTiltle = jobTiltle;
+
     if (req.files) {
       const photoId = employee.image.id;
       const resp = await cloudinary.uploader.destroy(photoId);
@@ -131,7 +148,7 @@ exports.editEmployee = async (req, res, next) => {
 exports.deleteEmployee = async (req, res, next) => {
   try {
     const { id } = req.params;
-      const employee = await Employee.deleteOne({ id });
+      const employee = await Employee.deleteOne({ _id :id});
     if (!employee) {
       return next(Error("User Doenot Exist"));
     }

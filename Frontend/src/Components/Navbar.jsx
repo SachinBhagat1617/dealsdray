@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import logo from "../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleLogIn, setToken } from "../utils/appSlice";
@@ -43,9 +42,9 @@ const Navbar = () => {
           localStorage.setItem("token", response.data.token);
           dispatch(toggleLogIn());
           toggleModal();
-          toast.success("Sign up successful! You are now logged in.");
+          //toast.success("Sign up successful! You are now logged in.");
         } else {
-          toast.error(response.data.message);
+          //toast.error(response.data.message);
         }
       } else if (auth === "login") {
         response = await axios.post("http://localhost:7777/api/v1/user/logIn", {
@@ -57,13 +56,13 @@ const Navbar = () => {
           localStorage.setItem("token", response.data.token);
           dispatch(toggleLogIn());
           toggleModal();
-          toast.success("Login successful!");
+          //toast.success("Login successful!");
         } else {
-          toast.error(response.data.message);
+          //toast.error(response.data.message);
         }
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      //toast.error("An error occurred. Please try again.");
     }
   };
 
@@ -89,9 +88,8 @@ const Navbar = () => {
       <ToastContainer position="top-center" autoClose={3000} />
       <div className="shadow-xl">
         <div className="flex justify-between">
-          <div className="flex space-x-4">
-            <img className="w-16" src={logo} alt="logo" />
-            <div className="text-xl flex justify-center items-center cursor-pointer">
+          <div className=" flex space-x-4">
+            <div className=" p-4 text-xl flex justify-center items-center cursor-pointer">
               Home
             </div>
             {token && (

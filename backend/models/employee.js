@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+
 const employeeSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-    default: Date.now,
+  firstName: {
+    type: String,
+    required: true,
   },
-  name: {
+  lastName: {
     type: String,
     required: true,
   },
@@ -13,24 +14,17 @@ const employeeSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  mobile: {
+  phoneNumber: {
     type: String,
     required: true,
   },
-  designation: {
+  company: {
     type: String,
     required: true,
-    enum: ["HR", "Manager", "Sales"],
   },
-  gender: {
+  jobTitle: {
     type: String,
     required: true,
-    enum: ["Male", "Female"],
-  },
-  courses: {
-    type: [String],
-    required: true,
-    //enum: ["MCA", "BCA", "BSc"],
   },
   image: {
     id: {
@@ -45,6 +39,11 @@ const employeeSchema = new mongoose.Schema({
   createDate: {
     type: Date,
     default: Date.now,
+  },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: [true, "User reference is required"],
   },
 });
 
